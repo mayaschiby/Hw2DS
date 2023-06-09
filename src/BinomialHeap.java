@@ -33,7 +33,7 @@ public class BinomialHeap {
         }
         // now assume that the heap is not empty
         HeapNode minNode = min;
-        
+        System.out.println("test1");
         return new HeapItem(3, null, null); // should be replaced by student code
     }
 
