@@ -8,11 +8,14 @@ public class BinomialHeap {
     public static void main(String[] args) {
         BinomialHeap o = new BinomialHeap();
         o.insert(3, "hello");
-        System.out.println(o.min.item.key);
+        o.insert(4, "hi");
+        System.out.println(o.last.next.item.key);
     }
     public int size;
     public HeapNode last;
     public HeapNode min;
+
+
     public BinomialHeap() {
         size = 0;
         last = null;
@@ -32,9 +35,53 @@ public class BinomialHeap {
 
         }
         // now assume that the heap is not empty
-        HeapNode minNode = min;
-        
+        HeapNode firstNode = this.getFirstNode();
+
+        // insert when there is only one tree in the heap or when linking isn't necessary.
+        if (firstNode.child != null || last.next == null) {
+            HeapNode newNode = new HeapNode(null, null, firstNode, null);
+            HeapItem newItem = new HeapItem(key, info, newNode);
+            newNode.item = newItem;
+            updateMin(key, newNode);  // updates min if necessary
+            last.next = newNode;
+            return newItem;
+        }
+        else {
+            HeapNode newNode = new HeapNode(null, null, firstNode, null);
+            HeapItem newItem = new HeapItem(key, info, newNode);
+            newNode.item = newItem;
+            updateMin(key, newNode);  // updates min if necessary
+            HeapNode curr = link(newNode, firstNode);
+            // NEED TO COMPLETE
+        }
         return new HeapItem(3, null, null); // should be replaced by student code
+    }
+
+    public HeapNode link(HeapNode x, HeapNode y) {
+        if (x.item.key > y.item.key) {
+            HeapNode tmp = x;
+            x = y;
+            y = tmp;
+        }
+        y.next = x.child;
+        x.child = y;
+        return x;
+    }
+
+    public void updateMin(int key, HeapNode node) {
+        if (key < min.item.key) {
+            min = node;
+        }
+    }
+
+    public HeapNode getFirstNode() {
+        int i = 0;
+        if (last.next == null) {
+            return min;
+        }
+        else {
+            return last.next;
+        }
     }
 
     public boolean isEmpty() {
@@ -50,9 +97,7 @@ public class BinomialHeap {
         return newItem;
     }
 
-    public void updateHeapFeilds(HeapItem item, HeapNode node) {
 
-    }
     /**
      * Delete the minimal item
      */
