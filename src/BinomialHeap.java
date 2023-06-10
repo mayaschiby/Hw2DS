@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * BinomialHeap
  * <p>
@@ -7,9 +9,15 @@
 public class BinomialHeap {
     public static void main(String[] args) {
         BinomialHeap o = new BinomialHeap();
-        o.insert(3, "hello");
-        o.insert(4, "hi");
-        System.out.println(o.last.next.item.key);
+//        for (int i = 0; i < 10; i++) {
+//            o.insert(i, "hi");
+//        }
+        int[] arr = new int[] {15, 35, 20, 31, 40, 58, 45, 67, 9, 33, 23};
+        for (int i = 0; i < arr.length; i++) {
+            o.insert(arr[i], "hi");
+        }
+        int n = 0;
+
     }
     public int size;
     public HeapNode last;
@@ -38,23 +46,44 @@ public class BinomialHeap {
         HeapNode firstNode = this.getFirstNode();
 
         // insert when there is only one tree in the heap or when linking isn't necessary.
-        if (firstNode.child != null || last.next == null) {
+        if (firstNode.rank != 0 || last.next == null) {
             HeapNode newNode = new HeapNode(null, null, firstNode, null);
             HeapItem newItem = new HeapItem(key, info, newNode);
             newNode.item = newItem;
+            if (firstNode.rank == 0) {
+                link(firstNode, newNode);
+                last = min;
+                return newItem;
+            }
             updateMin(key, newNode);  // updates min if necessary
+            HeapNode tmp;
+            if (last.next == null) {
+                tmp = last;
+            } else {
+                tmp = last.next;
+            }
             last.next = newNode;
+            newNode.next = tmp;
             return newItem;
         }
         else {
             HeapNode newNode = new HeapNode(null, null, firstNode, null);
             HeapItem newItem = new HeapItem(key, info, newNode);
             newNode.item = newItem;
-            updateMin(key, newNode);  // updates min if necessary
-            HeapNode curr = link(newNode, firstNode);
-            // NEED TO COMPLETE
+            while (firstNode != newNode && firstNode.rank == newNode.rank) {
+                HeapNode node = link(firstNode, newNode);
+                if (firstNode.next == null) {
+                    min = node;
+                    last = node;
+                    return newItem;
+                }
+                newNode = firstNode;
+                firstNode = node.next;
+                updateMin(key, newNode);  // updates min if necessary
+            }
+            return newItem;
         }
-        return new HeapItem(3, null, null); // should be replaced by student code
+//        return new HeapItem(3, null, null); // should be replaced by student code
     }
 
     public HeapNode link(HeapNode x, HeapNode y) {
@@ -63,8 +92,24 @@ public class BinomialHeap {
             x = y;
             y = tmp;
         }
-        y.next = x.child;
+        if (x.next == y) {
+            x.next = null;
+        }
+//        y.next = x.child;
+        if (x.child == null) {
+            y.next = y;
+        }
+        else {
+            if (x.child.next != null) {
+                HeapNode tmp = x.child.next;
+                x.child.next = y;
+                y.next = tmp;
+            }
+        }
         x.child = y;
+        y.parent = x;
+        last.next = x;
+        x.rank += 1;
         return x;
     }
 
@@ -189,6 +234,25 @@ public class BinomialHeap {
             this.info = info;
             this.key = key;
             this.node = node;
+        }
+    }
+
+    public void displayHeap()
+    {
+        System.out.print("\nHeap : ");
+        displayHeap(last, 0);
+        System.out.println("\n");
+    }
+
+    private void displayHeap(HeapNode r, int i)
+    {
+        if (i == size) {
+            return;
+        }
+        if (r != last.next && r.child != null) {
+            displayHeap(r.child, i += 1);
+            System.out.print(r.item.key + " ");
+            displayHeap(r.next, i += 1);
         }
     }
 
