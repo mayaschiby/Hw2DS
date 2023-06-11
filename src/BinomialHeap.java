@@ -11,6 +11,7 @@ public class BinomialHeap {
             o.insert(i, "hi");
         }
     }
+
     public int size;
     public HeapNode last;
     public HeapNode min;
@@ -37,11 +38,13 @@ public class BinomialHeap {
         // now assume that the heap is not empty
         HeapNode firstNode = last.next;
 
+        // create the node we want to insert
+        HeapNode newNode = new HeapNode(null, null, firstNode, null);
+        HeapItem newItem = new HeapItem(key, info, newNode);
+        newNode.item = newItem;
+
         // insert when there is only one tree in the heap or when linking isn't necessary.
         if (firstNode.rank != 0 || last.next == last) {
-            HeapNode newNode = new HeapNode(null, null, firstNode, null);
-            HeapItem newItem = new HeapItem(key, info, newNode);
-            newNode.item = newItem;
             if (firstNode.rank == 0) {
                 HeapNode x = link(firstNode, newNode);
                 min = x;
@@ -52,25 +55,21 @@ public class BinomialHeap {
             HeapNode first = last.next;
             last.next = newNode;
             newNode.next = first;
-            return newItem;
-        }
-        else {
-            HeapNode newNode = new HeapNode(null, null, firstNode, null);
-            HeapItem newItem = new HeapItem(key, info, newNode);
-            newNode.item = newItem;
+        } else {
             while (firstNode != newNode && firstNode.rank == newNode.rank) {
                 HeapNode node = link(firstNode, newNode);
-                if (firstNode.next == null) {
+                if (firstNode.next == firstNode) {
                     min = node;
                     last = node;
                     return newItem;
                 }
-                newNode = firstNode;
+                newNode = node;
                 firstNode = node.next;
-                updateMin(key, newNode);  // updates min if necessary
+                last.next = node;
+                updateMin(key, node);  // updates min if necessary
             }
-            return newItem;
         }
+        return newItem;
 //        return new HeapItem(3, null, null); // should be replaced by student code
     }
 
@@ -78,7 +77,7 @@ public class BinomialHeap {
         if (x.item.key > y.item.key) {
             if (last == x) {
                 last = y;
-            }else {
+            } else {
                 last.next = y;
             }
             HeapNode tmp = x;
@@ -90,8 +89,7 @@ public class BinomialHeap {
         }
         if (x.child == null) {
             y.next = y;
-        }
-        else {
+        } else {
             HeapNode tmp = x.child.next;
             x.child.next = y;
             y.next = tmp;
@@ -129,8 +127,7 @@ public class BinomialHeap {
         int i = 0;
         if (last.next == null) {
             return last;
-        }
-        else {
+        } else {
             return last.next;
         }
     }
@@ -139,7 +136,7 @@ public class BinomialHeap {
         return this.min == null;
     }
 
-    public HeapItem insertToEmpty(int key, String info) {
+    private HeapItem insertToEmpty(int key, String info) {
         HeapNode newNode = new HeapNode(null, null, null, null);
         HeapItem newItem = new HeapItem(key, info, newNode);
         newNode.item = newItem;
@@ -221,6 +218,7 @@ public class BinomialHeap {
         public HeapNode next;
         public HeapNode parent;
         public int rank;
+
         public HeapNode(HeapItem item, HeapNode child, HeapNode next, HeapNode parent) {
             this.item = item;
             this.child = child;
@@ -237,12 +235,14 @@ public class BinomialHeap {
         public HeapNode node;
         public int key;
         public String info;
+
         public HeapItem(int key, String info, HeapNode node) {
             this.info = info;
             this.key = key;
             this.node = node;
         }
     }
+
     public void printHeap() {
         if (isEmpty()) {
             System.out.println("#");
@@ -251,13 +251,14 @@ public class BinomialHeap {
         HeapNode curr = last.next;
         if (last.next == last) {
             printTree(curr);
-        }else {
+        } else {
             while (curr != last) {
                 printTree(curr);
                 curr = curr.next;
             }
         }
     }
+
     public void printTree(HeapNode root) {
         printNode(root);
         if (root.child != null) {
@@ -271,9 +272,8 @@ public class BinomialHeap {
             }
         }
     }
+
     public void printNode(HeapNode node) {
         System.out.println(node.item.key + " ");
     }
 }
-
-
