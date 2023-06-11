@@ -61,11 +61,6 @@ public class BinomialHeap {
         } else {
             while (firstNode != newNode && firstNode.rank == newNode.rank) {
                 HeapNode node = link(firstNode, newNode);
-//                if (firstNode.next == firstNode) {
-//                    min = node;
-//                    last = node;
-//                    return newItem;
-//                }
                 newNode = node;
                 firstNode = node.next;
                 last.next = node;
@@ -73,7 +68,6 @@ public class BinomialHeap {
             }
         }
         return newItem;
-//        return new HeapItem(3, null, null); // should be replaced by student code
     }
 
     public HeapNode link(HeapNode x, HeapNode y) {
@@ -107,22 +101,6 @@ public class BinomialHeap {
         last.next = x;
         x.rank += 1;
         return x;
-    }
-
-    public void changeXToY(HeapNode x, HeapNode y) {
-        if (last == x) {
-            last = y;
-        } else if (last == y) {
-            last = x;
-        }
-        if (min == x) {
-            min = y;
-        } else if (min == y) {
-            min = x;
-        }
-        HeapNode tmp = x;
-        x = y;
-        y = tmp;
     }
 
     public void updateMin(int key, HeapNode node) {
