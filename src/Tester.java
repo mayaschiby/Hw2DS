@@ -1,4 +1,3 @@
-import java.util.Random;
 
 public class Tester {
     public static void main(String[] args) {
@@ -8,6 +7,10 @@ public class Tester {
         for (int i = 0; i < 16; i++) {
             heap.insert(arr[i], "hi");
         }
+
+        BinomialHeap heap2 = new BinomialHeap();
+        heap2.insert(7, "hi");
+
         heap.print();
     }
 }

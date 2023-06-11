@@ -7,12 +7,16 @@ import java.util.Set;
  * An implementation of binomial heap over non-negative integers.
  * Based on exercise from previous semester.
  */
+
+
 public class BinomialHeap {
     public static void main(String[] args) {
         BinomialHeap o = new BinomialHeap();
         for (int i = 0; i < 10; i++) {
             o.insert(i, "hi");
         }
+        BinomialHeap heap = new BinomialHeap();
+//        heap.meld(o);
     }
 
     public int size;
@@ -109,15 +113,6 @@ public class BinomialHeap {
         }
     }
 
-    public HeapNode getFirstNode() {
-        int i = 0;
-        if (last.next == null) {
-            return last;
-        } else {
-            return last.next;
-        }
-    }
-
     public boolean isEmpty() {
         return this.min == null;
     }
@@ -145,7 +140,7 @@ public class BinomialHeap {
      * Return the minimal HeapItem
      */
     public HeapItem findMin() {
-        return null; // should be replaced by student code
+        return min.item;
     }
 
     /**
@@ -168,7 +163,27 @@ public class BinomialHeap {
      * Meld the heap with heap2
      */
     public void meld(BinomialHeap heap2) {
-        return; // should be replaced by student code
+//        int minimum = Math.min(this.min.item.key, heap2.min.item.key);
+//        if (minimum == heap2.min.item.key) {
+//            min = heap2.min;
+//        }
+        HeapNode thisNode = this.last.next;
+        HeapNode otherNode = heap2.last.next;
+        int thisLargestRank = last.rank;
+        int otherLargestRank = heap2.last.rank;
+        if (otherLargestRank == 1) {
+            insert(heap2.min.item.key, heap2.min.item.info);
+            heap2 = null;
+            return;
+        } else if (thisLargestRank == 1) {
+            BinomialHeap tmp = heap2;
+            heap2.insert(min.item.key, min.item.info);
+            size = heap2.size;
+            min = heap2.min;
+            last = heap2.last;
+            heap2 = null;
+            return;
+        }
     }
 
     /**
