@@ -16,7 +16,6 @@ public class BinomialHeap {
             o.insert(i, "hi");
         }
         BinomialHeap heap = new BinomialHeap();
-//        heap.meld(o);
     }
 
     public int size;
@@ -53,7 +52,7 @@ public class BinomialHeap {
         // insert when there is only one tree in the heap or when linking isn't necessary.
         if (firstNode.rank != 0 || last.next == last) {
             if (firstNode.rank == 0) {
-                HeapNode x = link(firstNode, newNode);
+                HeapNode x = link(firstNode, newNode, false);
                 min = x;
                 last = x;
                 return newItem;
@@ -64,7 +63,7 @@ public class BinomialHeap {
             newNode.next = first;
         } else {
             while (firstNode != newNode && firstNode.rank == newNode.rank) {
-                HeapNode node = link(firstNode, newNode);
+                HeapNode node = link(firstNode, newNode, false);
                 newNode = node;
                 firstNode = node.next;
                 last.next = node;
@@ -74,7 +73,11 @@ public class BinomialHeap {
         return newItem;
     }
 
-    public HeapNode link(HeapNode x, HeapNode y) {
+    public HeapNode link(HeapNode x, HeapNode y, boolean meld) {
+        if (x.rank != y.rank) {
+            System.out.println("TWO TREES' NOT WITH THE SAME RANK ##LINK##  -->> KEYS ARE: " + x.item.key + y.item.key);
+            System.exit(1);
+        }
         if (x.item.key > y.item.key) {
             if (last == x) {
                 last = y;
@@ -102,7 +105,9 @@ public class BinomialHeap {
         }
         x.child = y;
         y.parent = x;
-        last.next = x;
+        if (!meld) {
+            last.next = x;
+        }
         x.rank += 1;
         return x;
     }
@@ -163,26 +168,216 @@ public class BinomialHeap {
      * Meld the heap with heap2
      */
     public void meld(BinomialHeap heap2) {
-//        int minimum = Math.min(this.min.item.key, heap2.min.item.key);
-//        if (minimum == heap2.min.item.key) {
-//            min = heap2.min;
-//        }
-        HeapNode thisNode = this.last.next;
-        HeapNode otherNode = heap2.last.next;
-        int thisLargestRank = last.rank;
-        int otherLargestRank = heap2.last.rank;
-        if (otherLargestRank == 1) {
+        if (size < heap2.size) {
+            int sizeTmp = heap2.size;
+            HeapNode minTmp = heap2.min;
+            HeapNode lastTmp = heap2.last;
+            heap2.size = size;
+            heap2.last = last;
+            heap2.min = min;
+            size = sizeTmp;
+            min = minTmp;
+            last = lastTmp;
+
+        }
+        size += heap2.size;
+        // now we can assume this has a binomial tree that is of rank bigger than the biggest rank of heap2
+        if (heap2.isEmpty()) {
+            return;
+        }
+        if (isEmpty()) {
+            min = heap2.min;
+            size = heap2.size;
+            last = heap2.last;
+        }
+        if (heap2.size == 1 || size == 1) {
+            meldCaseOne(heap2);
+            return;
+        }
+        HeapNode thisCurr = last.next;
+        HeapNode otherCurr = heap2.last.next;
+        HeapNode thisBefore = last;
+        HeapNode otherBefore = heap2.last;
+        HeapNode curry = null;
+        while (otherCurr != heap2.last) {
+            if (curry != null) {
+                if (curry.rank < thisCurr.rank && curry.rank < otherCurr.rank) {  // both zero in the binary view
+                    thisBefore.next = curry;
+                    curry.next = thisCurr;
+                    curry = null;  // ### CONNECTED CURRY AND NOW WANTS TO "SHUT IT DOWN" -- MAY NOT WORK!!!!!
+                    //  !!!!!!!!!!!!!!!!!!!! LOOK AT THE COMMENT ABOVE
+
+                }
+            }
+            if (thisCurr.rank < otherCurr.rank) {
+                if (curry == null) {
+                    HeapNode thisTmp = thisCurr.next;
+                    HeapNode otherTmp = otherCurr.next;
+                    thisCurr.next = otherCurr;
+                    otherCurr.next = thisTmp;
+                    otherBefore.next = otherTmp;
+                    thisBefore = thisBefore.next;
+                    while (otherCurr.rank == otherCurr.next.rank) {
+                        thisBefore = thisBefore.next;  //MAYBE NOT GOOD!!!!!!!
+                        HeapNode tmp = otherCurr.next.next;
+                        otherCurr = link(otherCurr, otherCurr.next, false);
+                        thisCurr.next = otherCurr;
+                        otherCurr.next = tmp;
+                    }
+                    thisCurr = otherCurr;
+                    otherCurr = otherTmp;
+                    continue;
+                }else {
+                    HeapNode thisTmp = thisCurr.next;
+                    curry = link(curry, thisCurr, true);
+                    thisBefore.next = thisTmp;
+                    thisCurr = thisTmp;
+                    continue;
+                }
+            }
+            if (otherCurr.rank < thisCurr.rank) {
+                if (curry == null) {
+                    HeapNode tmp = otherCurr.next;
+                    thisBefore.next = otherCurr;
+                    otherCurr.next = thisCurr;
+                    otherBefore.next = tmp;
+                    otherCurr = tmp;
+                    continue;
+                }else {
+                    HeapNode otherTmp = otherCurr.next;
+                    curry = link(curry, otherCurr, true);
+                    otherBefore.next = otherTmp;
+                    otherCurr = otherTmp;
+                    continue;
+                }
+            }
+            if (curry != null) {
+                HeapNode thisTmp = thisCurr.next;
+                HeapNode otherTmp = otherCurr.next;
+                HeapNode thisFirst = last.next;
+                curry = link(thisCurr, otherCurr, true);
+                otherBefore.next = otherTmp;
+                thisCurr = thisTmp;
+                otherCurr = otherTmp;
+                thisBefore.next = thisFirst;
+            } else { // then thisCurr and otherCurr has the same rank
+                HeapNode thisTmp = thisCurr.next;
+                HeapNode otherTmp = otherCurr.next;
+                curry = link(thisCurr, otherCurr, true);
+                otherBefore.next = otherTmp;
+                thisBefore.next = curry;
+                curry.next = thisTmp;
+                otherCurr = otherTmp;
+                thisCurr = thisTmp;
+            }
+        }
+        endMeld(thisCurr, otherCurr, heap2, thisBefore, otherBefore, curry);
+    }
+
+
+    public void endMeld(HeapNode thisCurr, HeapNode otherCurr, BinomialHeap heap2,
+                        HeapNode thisBefore, HeapNode otherBefore, HeapNode curry) {
+        if (thisCurr.rank == otherCurr.rank) {
+            if(curry == null) {
+                HeapNode First = thisCurr.next;
+                curry = link(thisCurr, otherCurr, true);
+                thisBefore.next = curry;
+                curry.next = First;
+                last = curry;
+            }else { // curry != null and the ranks are the same
+                HeapNode First = curry;
+                curry = link(thisCurr, otherCurr, true);
+                thisCurr = thisCurr.next;
+//                last.next = First;
+                while(thisCurr.rank == curry.rank) {
+                    HeapNode tmp = thisCurr.next;
+                    curry = link(thisCurr, curry, true);
+                    First.next = curry;
+                    curry.next = tmp;
+                    thisCurr = thisCurr.next;
+                }
+
+            }
+        }else if(thisCurr.rank > otherCurr.rank) {
+            meldCaseTwo(curry, otherCurr, thisBefore, thisCurr);
+        }else { // thisCurr.rank < otherCurr.rank
+            while (thisCurr.rank < otherCurr.rank) {
+                thisCurr = thisCurr.next;
+                thisBefore = thisBefore.next;
+            }
+            if(thisCurr.rank == otherCurr.rank) {
+                meldCaseThree(curry, thisCurr, thisBefore, otherCurr);
+            }else{
+                meldCaseTwo(curry, otherCurr, thisBefore, thisCurr);
+            }
+        }
+
+    }
+
+    public void meldCaseThree(HeapNode curry, HeapNode thisCurr, HeapNode thisBefore, HeapNode otherCurr) {
+        if(curry == null) {
+            HeapNode thisCurrNext = thisCurr.next;
+            thisCurr.next = otherCurr;
+            otherCurr.next = thisCurrNext;
+            curry = link(thisCurr, otherCurr, true);
+            thisBefore.next = curry;
+            curry.next = thisCurrNext;
+            while (curry.rank == curry.next.rank) {
+                HeapNode tmp = curry.next.next;
+                curry = link(curry, curry.next, false);
+                curry.next = tmp;
+                thisBefore.next = curry;
+                thisBefore = thisBefore.next;
+            }
+        }else { // curry != null and the ranks are the same
+            HeapNode First = thisCurr.next;
+            thisBefore.next = curry;
+            last = link(thisCurr, otherCurr, true);
+            curry.next = last;
+            last.next = First;
+        }
+    }
+
+    public void meldCaseTwo(HeapNode curry, HeapNode otherCurr, HeapNode thisBefore, HeapNode thisCurr) {
+        if (curry == null) {
+            thisBefore.next = otherCurr;
+            otherCurr.next = thisCurr;
+        }else {
+            if(curry.rank == otherCurr.rank) {
+                curry = link(curry, otherCurr, true);
+                curry.next = thisCurr.next;
+                thisCurr = thisCurr.next;
+                thisBefore.next = curry;
+                while (curry.rank == thisCurr.rank) {
+                    HeapNode thisTmp = thisCurr.next;
+                    curry = link(curry, thisCurr, true);
+                    thisBefore.next = curry;
+                    curry = thisTmp;
+                }
+            }else{
+                thisBefore.next = curry;
+                curry.next = otherCurr;
+                otherCurr.next = thisCurr;
+            }
+
+        }
+    }
+
+
+    /**
+     * @Pre one of the heaps is of size 1
+     */
+    public void meldCaseOne(BinomialHeap heap2) {
+        if (heap2.size == 1) {
             insert(heap2.min.item.key, heap2.min.item.info);
             heap2 = null;
-            return;
-        } else if (thisLargestRank == 1) {
+        } else{
             BinomialHeap tmp = heap2;
             heap2.insert(min.item.key, min.item.info);
             size = heap2.size;
             min = heap2.min;
             last = heap2.last;
             heap2 = null;
-            return;
         }
     }
 
@@ -190,7 +385,7 @@ public class BinomialHeap {
      * Return the number of elements in the heap
      */
     public int size() {
-        return 42; // should be replaced by student code
+        return size; // should be replaced by student code
     }
 
     /**
