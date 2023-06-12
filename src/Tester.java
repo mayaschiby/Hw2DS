@@ -4,19 +4,20 @@ import java.util.Collections;
 import java.util.Random;
 
 public class Tester {
+
     public static void main(String[] args) {
-        for(int i = 0; i < 300; i++) {
-        int t = createRandInt();
-        int l = createRandInt();
-            test(t, l, i);
-        }
+//        for(int i = 0; i < 300; i++) {
+//            int t = createRandInt();
+//            int l = createRandInt();
+//        }
+        test(51, 50, 1);
     }
     public static int createRandInt() {
         int randomNum = 300 + (int)(Math.random() * 300);
         return randomNum;
     }
     public static void test(int t, int l, int p) {
-        if(p%300 == 10){
+        if(p%300 == 1){
             System.out.print((300-p)/300 + "% left");
         }
         ArrayList<Integer> lst1 = new ArrayList<>(0);
@@ -28,7 +29,7 @@ public class Tester {
         BinomialHeap heap2 = new BinomialHeap();
         for (int j = 0; j < l; j++) {
             heap2.insert(t + j, "hi");
-            lst1.add(l + j);
+            lst1.add(t + j);
         }
         heap.meld(heap2);
         ArrayList<Integer> lst2 = new ArrayList<>(0);
@@ -36,6 +37,8 @@ public class Tester {
         Collections.sort(lst1);
         Collections.sort(lst2);
         System.out.println(" ");
+        System.out.println(lst1);
+        System.out.println(lst2);
         for(int i = 0; i < lst1.size(); i++) {
             if(!lst1.get(i).equals(lst2.get(i))){
                 System.out.println("You have entered " + i + " but it was not found in your heap");
@@ -62,6 +65,9 @@ public class Tester {
     }
 
     public static boolean scanTree(BinomialHeap.HeapNode root, boolean inBros, ArrayList<Integer> lst) {
+        if (lst.contains(root.item.key)) {
+            return true;
+        }
         if(root.rank == 0) {
             lst.add(root.item.key);
             return true;
@@ -80,6 +86,9 @@ public class Tester {
         return false;
     }
     public static boolean checkBros(BinomialHeap.HeapNode root, ArrayList<Integer> lst) {
+        if(root.item.key == 20) {
+            int n = 0;
+        }
         BinomialHeap.HeapNode node = root.next;
         while (node != root) {
             if(!scanTree(node, true, lst)) {

@@ -81,8 +81,10 @@ public class BinomialHeap {
         if (x.item.key > y.item.key) {
             if (last == x) {
                 last = y;
-            } else {
+            } else if (!meld){
                 last.next = y;
+            }else {
+
             }
             if (x.next == x) {
                 y.next = y;
@@ -112,6 +114,22 @@ public class BinomialHeap {
         return x;
     }
 
+    /**
+    * @ pre: x.item.key < y.item.key
+     * @ pre: x.next = y
+     */
+    public HeapNode linkCurry(HeapNode x, HeapNode y, HeapNode AfterY) {
+        x.rank += 1;
+        x.next = y.next;
+        HeapNode xChildNext = x.child.next;
+        y.next = xChildNext;
+        y.parent = x;
+        x.child.next = y;
+        if(last == y) {
+            last = x;
+        }
+        return x;
+    }
     public void updateMin(int key, HeapNode node) {
         if (key < min.item.key) {
             min = node;
@@ -272,6 +290,19 @@ public class BinomialHeap {
             }
         }
         endMeld(thisCurr, otherCurr, heap2, thisBefore, otherBefore, curry);
+        HeapNode minimum = last.next;
+        HeapNode curr = last.next;
+        while (curr != last) {
+            if (curr.item.key < minimum.item.key) {
+                minimum = curr;
+            }
+            curr = curr.next;
+        }
+        if(last.item.key < minimum.item.key) {
+            min = last;
+        }else{
+            min = minimum;
+        }
     }
 
 
@@ -316,18 +347,26 @@ public class BinomialHeap {
 
     public void meldCaseThree(HeapNode curry, HeapNode thisCurr, HeapNode thisBefore, HeapNode otherCurr) {
         if(curry == null) {
-            HeapNode thisCurrNext = thisCurr.next;
-            thisCurr.next = otherCurr;
-            otherCurr.next = thisCurrNext;
-            curry = link(thisCurr, otherCurr, true);
-            thisBefore.next = curry;
-            curry.next = thisCurrNext;
-            while (curry.rank == curry.next.rank) {
-                HeapNode tmp = curry.next.next;
-                curry = link(curry, curry.next, false);
-                curry.next = tmp;
-                thisBefore.next = curry;
-                thisBefore = thisBefore.next;
+            // thisCurr = 52, otherCurr = 0, last = 20, thisBefore = 16
+            thisBefore.next = otherCurr;
+            otherCurr.next = thisCurr;
+            if(thisCurr.item.key > otherCurr.item.key) {
+                curry = linkCurry(otherCurr, thisCurr, thisCurr.next);
+            }else {
+                otherCurr.next = thisCurr.next;
+                thisCurr.next = otherCurr;
+                thisBefore.next = thisCurr;
+                curry = linkCurry(otherCurr, thisCurr, thisCurr.next);
+            }
+            while (curry != curry.next && curry.rank == curry.next.rank) {
+                thisCurr = curry.next;
+                if(curry.item.key < curry.next.item.key) {
+                    curry = linkCurry(curry, thisCurr, thisCurr.next);
+                }else {
+                    curry.next = thisCurr;
+                    thisCurr.next = curry;
+                    thisBefore.next = thisCurr;
+                }
             }
         }else { // curry != null and the ranks are the same
             HeapNode First = thisCurr.next;
