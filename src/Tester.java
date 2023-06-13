@@ -6,19 +6,21 @@ import java.util.Random;
 public class Tester {
 
     public static void main(String[] args) {
-//        for(int i = 0; i < 300; i++) {
-//            int t = createRandInt();
-//            int l = createRandInt();
-//        }
-        test(51, 50, 1);
+        for(int i = 0; i < 30000; i++) {
+            int t = createRandInt();
+            int l = createRandInt();
+//            System.out.println(t + " " + l);
+            test(13, 6,1);
+        }
+        System.out.println("All Done!");
     }
     public static int createRandInt() {
-        int randomNum = 300 + (int)(Math.random() * 300);
+        int randomNum = 300 + (int)(Math.random() * 2000);
         return randomNum;
     }
     public static void test(int t, int l, int p) {
-        if(p%300 == 1){
-            System.out.print((300-p)/300 + "% left");
+        if(p%10 == 0){
+            System.out.println((300-p)/300 + "% left");
         }
         ArrayList<Integer> lst1 = new ArrayList<>(0);
         BinomialHeap heap = new BinomialHeap();
@@ -36,12 +38,16 @@ public class Tester {
         scanTree(heap.last, false, lst2);
         Collections.sort(lst1);
         Collections.sort(lst2);
-        System.out.println(" ");
-        System.out.println(lst1);
-        System.out.println(lst2);
-        for(int i = 0; i < lst1.size(); i++) {
+//        heap.print();
+//        System.out.println(lst1);
+//        System.out.println(lst2);
+        boolean k = false;
+        for(int i = 0; i < lst1.size() && i < lst2.size(); i++) {
             if(!lst1.get(i).equals(lst2.get(i))){
-                System.out.println("You have entered " + i + " but it was not found in your heap");
+//                if (!k) {
+                    System.out.println("You have entered " + i + " but it was not found in your heap");
+//                }
+//                k = true;
             }
         }
     }
