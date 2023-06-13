@@ -40,84 +40,98 @@ public class BinomialHeap {
      * <p>
      * Insert (key,info) into the heap and return the newly generated HeapItem.
      */
+//    public HeapItem insert1(int key, String info) {
+//        size += 1;
+//        if (this.isEmpty()) {
+//            HeapItem insertedItem = insertToEmpty(key, info);
+//            return insertedItem;
+//
+//        }
+//        // now assume that the heap is not empty
+//        HeapNode firstNode = last.next;
+//
+//        // create the node we want to insert
+//        HeapNode newNode = new HeapNode(null, null, firstNode, null);
+//        HeapItem newItem = new HeapItem(key, info, newNode);
+//        newNode.item = newItem;
+//
+//        // insert when there is only one tree in the heap or when linking isn't necessary.
+//        if (firstNode.rank != 0 || last.next == last) {
+//            if (firstNode.rank == 0) {
+//                HeapNode x = link(firstNode, newNode, false);
+//                min = x;
+//                last = x;
+//                return newItem;
+//            }
+//            updateMin(key, newNode);  // updates min if necessary
+//            HeapNode first = last.next;
+//            last.next = newNode;
+//            newNode.next = first;
+//        } else {
+//            while (firstNode != newNode && firstNode.rank == newNode.rank) {
+//                HeapNode node = link(firstNode, newNode, false);
+//                newNode = node;
+//                firstNode = node.next;
+//                last.next = node;
+//                updateMin(key, node);  // updates min if necessary
+//            }
+//        }
+//        return newItem;
+//    }
+//
+//    public HeapNode link(HeapNode x, HeapNode y, boolean meld) {
+//        if (x.rank != y.rank) {
+//            System.out.println("TWO TREES' NOT WITH THE SAME RANK ##LINK##  -->> KEYS ARE: " + x.item.key + y.item.key);
+//            System.exit(1);
+//        }
+//        if (x.item.key > y.item.key) {
+//            if (last == x) {
+//                last = y;
+//            } else if (!meld){
+//                last.next = y;
+//            }else {
+//
+//            }
+//            if (x.next == x) {
+//                y.next = y;
+//            }else {
+//                y.next = x.next;
+//            }
+//            HeapNode tmp = x;
+//            x = y;
+//            y = tmp;
+//        }
+//        if (x == last) {
+//            x.next = x;
+//        }
+//        if (x.child == null) {
+//            y.next = y;
+//        } else {
+//            HeapNode tmp = x.child.next;
+//            x.child.next = y;
+//            y.next = tmp;
+//        }
+//        x.child = y;
+//        y.parent = x;
+//        if (!meld) {
+//            last.next = x;
+//        }
+//        x.rank += 1;
+//        return x;
+//    }
+
     public HeapItem insert(int key, String info) {
-        size += 1;
-        if (this.isEmpty()) {
-            HeapItem insertedItem = insertToEmpty(key, info);
-            return insertedItem;
-
-        }
-        // now assume that the heap is not empty
-        HeapNode firstNode = last.next;
-
-        // create the node we want to insert
-        HeapNode newNode = new HeapNode(null, null, firstNode, null);
+        HeapNode newNode = new HeapNode(null, null, null, null);
         HeapItem newItem = new HeapItem(key, info, newNode);
         newNode.item = newItem;
+        newNode.next = newNode;
 
-        // insert when there is only one tree in the heap or when linking isn't necessary.
-        if (firstNode.rank != 0 || last.next == last) {
-            if (firstNode.rank == 0) {
-                HeapNode x = link(firstNode, newNode, false);
-                min = x;
-                last = x;
-                return newItem;
-            }
-            updateMin(key, newNode);  // updates min if necessary
-            HeapNode first = last.next;
-            last.next = newNode;
-            newNode.next = first;
-        } else {
-            while (firstNode != newNode && firstNode.rank == newNode.rank) {
-                HeapNode node = link(firstNode, newNode, false);
-                newNode = node;
-                firstNode = node.next;
-                last.next = node;
-                updateMin(key, node);  // updates min if necessary
-            }
-        }
+        BinomialHeap heap2 = new BinomialHeap();
+        heap2.size = 1;
+        heap2.last = newNode;
+        heap2.min = newNode;
+        meld(heap2);
         return newItem;
-    }
-
-    public HeapNode link(HeapNode x, HeapNode y, boolean meld) {
-        if (x.rank != y.rank) {
-            System.out.println("TWO TREES' NOT WITH THE SAME RANK ##LINK##  -->> KEYS ARE: " + x.item.key + y.item.key);
-            System.exit(1);
-        }
-        if (x.item.key > y.item.key) {
-            if (last == x) {
-                last = y;
-            } else if (!meld){
-                last.next = y;
-            }else {
-
-            }
-            if (x.next == x) {
-                y.next = y;
-            }else {
-                y.next = x.next;
-            }
-            HeapNode tmp = x;
-            x = y;
-            y = tmp;
-        }
-        if (x == last) {
-            x.next = x;
-        }
-        if (x.child == null) {
-            y.next = y;
-        } else {
-            HeapNode tmp = x.child.next;
-            x.child.next = y;
-            y.next = tmp;
-        }
-        x.child = y;
-        y.parent = x;
-        if (!meld) {
-            last.next = x;
-        }
-        x.rank += 1;
-        return x;
     }
 
     /**
@@ -161,8 +175,63 @@ public class BinomialHeap {
      * Delete the minimal item
      */
     public void deleteMin() {
-        return; // should be replaced by student code
+        if (size == 1 || size == 0) {
+            min = null;
+            size = 0;
+            last = null;
+            return;
+        }
+        if (last == last.next) {
+            last = last.child;
+            size -= 1;
+            updateHeap();
+            return;
+        }
+        HeapNode BeforeMin = findBeforeMin();
+        HeapNode AfterMin = min.next;
+        if (min.child == null) {
+            BeforeMin.next = AfterMin;
+        }else {
+            if (min == last) {
+                last = AfterMin;
+            }
+            BeforeMin.next = AfterMin;
+            size = size - (int) Math.pow(2, min.rank);
+            BinomialHeap heap2 = new BinomialHeap();
+            heap2.last = min.child;
+            heap2.size = (int) Math.pow(2, min.rank) - 1;
+            heap2.updateHeap();
+            this.updateHeap();
+            meld(heap2);
+        }
+    }
+    public void updateHeap() {  // removes all parents and apply min
+        HeapNode node = last;
+        min = last;
+        node = node.next;
+        while (node != last) {
+            if (node.item.key < min.item.key) {
+                min = node;
+            }
+            node = node.next;
+        }
+        node = last.next;
+        while (node != last) {
+            node.parent = null;
+            node = node.next;
+        }
+        last.parent = null;
+    }
 
+    public HeapNode findBeforeMin(){
+        if (min.next == min) {
+            return min;
+        }
+        HeapNode node = min.next;
+        while (node.next != min) {
+            node = node.next;
+        }
+        return node;
     }
 
     /**
@@ -198,6 +267,7 @@ public class BinomialHeap {
             min = heap2.min;
             size = heap2.size;
             last = heap2.last;
+            return;
         }
         HeapNode minimum;
         int mini = Math.min(min.item.key, heap2.min.item.key);
