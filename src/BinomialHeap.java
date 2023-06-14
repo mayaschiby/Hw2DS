@@ -13,15 +13,14 @@ import java.util.Set;
 public class BinomialHeap {
     public static void main(String[] args) {
         BinomialHeap heap1 = new BinomialHeap();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 17; i++) {
             heap1.insert(i, "hi");
         }
-        BinomialHeap heap2 = new BinomialHeap();
-        for(int j = 0; j < 3; j++) {
-            heap2.insert(j, "hi");
-        }
-
-        heap1.meld(heap2);
+        heap1.deleteMin();
+        heap1.deleteMin();
+        heap1.deleteMin();
+        heap1.deleteMin();
+        heap1.deleteMin();
     }
 
     public int size;
@@ -191,9 +190,11 @@ public class BinomialHeap {
         HeapNode AfterMin = min.next;
         if (min.child == null) {
             BeforeMin.next = AfterMin;
+            size -= 1;
+            updateHeap();
         }else {
             if (min == last) {
-                last = AfterMin;
+                last = BeforeMin;
             }
             BeforeMin.next = AfterMin;
             size = size - (int) Math.pow(2, min.rank);
@@ -204,6 +205,20 @@ public class BinomialHeap {
             this.updateHeap();
             meld(heap2);
         }
+    }
+    public boolean checkParents() {
+        if (last == null) {
+            return true;
+        }
+        int cnt = 0;
+        HeapNode node = last.next;
+        while (node != last) {
+            if (node.parent != null) {
+                return false;
+            }
+            node = node.next;
+        }
+        return last.parent == null;
     }
     public void updateHeap() {  // removes all parents and apply min
         HeapNode node = last;
@@ -651,7 +666,7 @@ public class BinomialHeap {
      * is empty.
      */
     public boolean empty() {
-        return false; // should be replaced by student code
+        return min == null;
     }
 
     /**
