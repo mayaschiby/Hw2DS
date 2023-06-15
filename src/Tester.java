@@ -1,23 +1,20 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 import java.util.random.RandomGenerator;
 
 public class Tester {
 
-    public static final int NUM_OF_IT = 1;
+    public static final int NUM_OF_IT = 100;
 
-    public static final int LOW_RANGE = 400;
+    public static final int LOW_RANGE = 100;
 
-    public static final int UPPER_RANGE = 50000;
+    public static final int UPPER_RANGE = 100000;
 
     public static void main(String[] args) {
          // ###TEST MELD### //
 
 //        for(int i = 0; i < NUM_OF_IT; i++) {
-//            int t = createRandInt(100, (int) Math.pow(3, 15));
-//            int l = createRandInt(100, (int) Math.pow(3, 15));
+//            int t = createRandInt(LOW_RANGE, UPPER_RANGE, i);
+//            int l = createRandInt(LOW_RANGE, UPPER_RANGE, i);
 //            System.out.println("t: " + t + " l: " + l);
 //            test(t, l,i);
 //        }
@@ -25,13 +22,19 @@ public class Tester {
 
         // ### TEST INSERT ### //
 
-//        for (int i = 0; i < 20; i++) {
-//            int k = createRandInt(10000, 300000);
-//            testInsert(k);
-//        }
-//        System.out.println("All Done!");
+        for (int i = 0; i < 100; i++) {
+            int k = createRandInt(LOW_RANGE, UPPER_RANGE, i);
+            System.out.println(k);
+            boolean test = testInsert(k);
+            if (!test) {
+                System.out.println(k);
+            }
+        }
+        System.out.println("All Done!");
 
-        // ### TEST DELETEU_MIN ### //
+//        testInsert(15);
+
+        // ### TEST DELETE_MIN ### //
 
 //        boolean good = true;
 //        for(int i = 300; i < 500; i++) {
@@ -41,18 +44,6 @@ public class Tester {
 //            }
 //        }
 
-
-        testDeleteMin(301);
-//        BinomialHeap heap = new BinomialHeap();
-//        ArrayList<Integer> lst = new ArrayList<>(0);
-//        for (int i = 0; i < 16; i++) {
-//            int k = createRandInt(100, 500);
-//            lst.add(k);
-//            heap.insert(k, "hi");
-//        }
-//        System.out.println(lst);
-//        System.out.println(" ");
-//        heap.print();
     }
     public static int createRandInt(int m, int k, int seed) {
         RandomGenerator generator = new Random(seed);
@@ -62,8 +53,9 @@ public class Tester {
 
     public static ArrayList<Integer> createRandArr(int size, int lowRange, int upRange) {
         ArrayList<Integer> lst = new ArrayList<>(0);
+        int k = 0;
         for(int i = 0; i < size; i++) {
-            int k = createRandInt(lowRange, upRange, i);
+            k = createRandInt(lowRange, upRange, i);
             lst.add(k);
         }
         return lst;
@@ -100,22 +92,27 @@ public class Tester {
 //        }
     }
 
-    public static void testInsert(int t) {
-        ArrayList<Integer> lst1 = new ArrayList<>(0);
+    public static boolean testInsert(int t) {
+        ArrayList<Integer> lst1 = createRandArr(t, LOW_RANGE, UPPER_RANGE);
         BinomialHeap heap = new BinomialHeap();
         for (int i = 0; i < t; i++) {
-            heap.insert(i, "hi");
-            lst1.add(i);
+            heap.insert(lst1.get(i), "hi");
         }
-        ArrayList<Integer> lst2 = new ArrayList<>(0);
+
+        ArrayList<BinomialHeap.HeapNode> lst2 = new ArrayList<>(0);
         scanTree(heap.last, false, lst2);
-        Collections.sort(lst1);
-        Collections.sort(lst2);
-        for(int i = 0; i < lst1.size(); i++) {
-            if(!lst1.get(i).equals(lst2.get(i))){
-                System.out.println("You have entered " + i + " but it was not found in your heap");
-            }
+//        heap.print();
+
+        ArrayList<Integer> lst3 = new ArrayList<>(0);
+        for (int i = 0; i < lst2.size(); i++) {
+            lst3.add(lst2.get(i).item.key);
         }
+        Collections.sort(lst3);
+        Collections.sort(lst1);
+//        System.out.println(lst3);
+//        System.out.println(lst1);
+//        System.out.println(lst1.equals(lst3));
+        return lst1.equals(lst3);
     }
 
 
@@ -141,17 +138,18 @@ public class Tester {
             return true;
         }
     }
-    public static boolean scanTree(BinomialHeap.HeapNode root, boolean inBros, ArrayList<Integer> lst) {
-        if (lst.contains(root.item.key)) {
+
+    public static boolean scanTree(BinomialHeap.HeapNode root, boolean inBros, ArrayList<BinomialHeap.HeapNode> lst) {
+        if (lst.contains(root)) {
             return true;
         }
         if(root.rank == 0) {
-            lst.add(root.item.key);
+            lst.add(root);
             return true;
         }
         BinomialHeap.HeapNode child = root.child;
         if (scanTree(child, false, lst)){
-            lst.add(root.item.key);
+            lst.add(root);
             if(!inBros) {
                 if(checkBros(root, lst)) {
                     return true;
@@ -162,7 +160,7 @@ public class Tester {
         }
         return false;
     }
-    public static boolean checkBros(BinomialHeap.HeapNode root, ArrayList<Integer> lst) {
+    public static boolean checkBros(BinomialHeap.HeapNode root, ArrayList<BinomialHeap.HeapNode> lst) {
         if(root.item.key == 20) {
             int n = 0;
         }
