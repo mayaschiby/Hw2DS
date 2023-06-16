@@ -9,7 +9,7 @@ import java.util.Set;
  */
 
 
-public class BinomialHeap {
+public class BinomialHeap{
     public static void main(String[] args) {
         BinomialHeap heap1 = new BinomialHeap();
         for (int i = 0; i < 17; i++) {
@@ -26,12 +26,14 @@ public class BinomialHeap {
     public int size;
     public HeapNode last;
     public HeapNode min;
+    private int numOfTrees;
 
 
     public BinomialHeap() {
         size = 0;
         last = null;
         min = null;
+        numOfTrees = 0;
     }
 
     /**
@@ -50,25 +52,16 @@ public class BinomialHeap {
         heap2.size = 1;
         heap2.last = newNode;
         heap2.min = newNode;
+        heap2.numOfTrees += 1;
         meld(heap2);
         return newItem;
     }
-
-    private HeapItem insertToEmpty(int key, String info) {
-        HeapNode newNode = new HeapNode(null, null, null, null);
-        HeapItem newItem = new HeapItem(key, info, newNode);
-        newNode.item = newItem;
-        newNode.next = newNode;
-        min = newNode;
-        last = newNode;
-        return newItem;
-    }
-
 
     /**
      * Delete the minimal item
      */
     public void deleteMin() {
+        numOfTrees -= 1;
         if (size == 1 || size == 0) {
             min = null;
             size = 0;
@@ -78,6 +71,7 @@ public class BinomialHeap {
         if (last == last.next) {
             last = last.child;
             size -= 1;
+            numOfTrees = last.rank;
             updateHeap();
             return;
         }
@@ -157,14 +151,34 @@ public class BinomialHeap {
      * Decrease the key of item by diff and fix the heap.
      */
     public void decreaseKey(HeapItem item, int diff) {
-        return; // should be replaced by student code
+        HeapNode node = item.node;
+        item.key -= diff;
+        if (node.parent != null) {
+            HeapNode parent = node.parent;
+            while(node.parent != null && node.item.key < node.parent.item.key){
+                switchNodes(node, parent);
+                node = parent;
+                parent = node.parent;
+            }
+        }
+    }
+
+    public void switchNodes (HeapNode node1, HeapNode node2) {
+        HeapItem item1 = node1.item;
+        HeapItem item2 = node2.item;
+        item1.node = node2;
+        item2.node = node1;
+        node1.item = item2;
+        node2.item = item1;
     }
 
     /**
      * Delete the item from the heap.
      */
     public void delete(HeapItem item) {
-        return; // should be replaced by student code
+        int curr = item.key - min.item.key + 1;
+        decreaseKey(item, curr);
+        deleteMin();
     }
 
 
@@ -175,7 +189,8 @@ public class BinomialHeap {
      * @return
      */
 
-    public static HeapNode linkmeld(HeapNode node1, HeapNode node2) {
+    public HeapNode linkmeld(HeapNode node1, HeapNode node2) {
+        numOfTrees -= 1;
         if (node1.item.key < node2.item.key) {
             HeapNode node1Child = node1.child;
             if (node1Child != null) {
@@ -233,9 +248,11 @@ public class BinomialHeap {
             min = heap2.min;
             size = heap2.size;
             last = heap2.last;
+            numOfTrees = heap2.numOfTrees;
             return;
         }
 
+        numOfTrees += heap2.numOfTrees;
         int sizesSum = size + heap2.size;
 
         int thisSize = last.rank + 1;
@@ -331,7 +348,7 @@ public class BinomialHeap {
      * Return the number of trees in the heap.
      */
     public int numTrees() {
-        return 0; // should be replaced by student code
+        return numOfTrees;
     }
 
     /**

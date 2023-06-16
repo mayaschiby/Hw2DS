@@ -1,16 +1,18 @@
 import java.util.*;
 import java.util.random.RandomGenerator;
+import java.util.stream.Stream;
 
 public class Tester {
 
-    public static final int NUM_OF_IT = 100;
+    public static final int TreeSize = 2000;
 
-    public static final int LOW_RANGE = 100;
+    public static final int LOW_RANGE = 0;
 
     public static final int UPPER_RANGE = 100000;
 
     public static void main(String[] args) {
-         // ###TEST MELD### //
+
+        // ###TEST MELD### //
 
 //        for(int i = 0; i < NUM_OF_IT; i++) {
 //            int t = createRandInt(LOW_RANGE, UPPER_RANGE, i);
@@ -22,17 +24,16 @@ public class Tester {
 
         // ### TEST INSERT ### //
 
-        for (int i = 0; i < 100; i++) {
-            int k = createRandInt(LOW_RANGE, UPPER_RANGE, i);
-            System.out.println(k);
-            boolean test = testInsert(k);
-            if (!test) {
-                System.out.println(k);
-            }
-        }
-        System.out.println("All Done!");
+//        for (int i = 0; i < 100; i++) {
+//            int k = createRandInt(LOW_RANGE, UPPER_RANGE, i);
+//            System.out.println(k);
+//            boolean test = testInsert(k);
+//            if (!test) {
+//                System.out.println(k);
+//            }
+//        }
+//        System.out.println("All Done!");
 
-//        testInsert(15);
 
         // ### TEST DELETE_MIN ### //
 
@@ -44,10 +45,30 @@ public class Tester {
 //            }
 //        }
 
+
+        // ### TEST DECREASE_KEY ### //
+//        BinomialHeap heap = new BinomialHeap();
+//        ArrayList <Integer> lst = createRandArr(TreeSize, LOW_RANGE, UPPER_RANGE);
+//        for(int i = 0; i < lst.size(); i++) {
+//            heap.insert(lst.get(i), "hi");
+//        }
+//        ArrayList<Integer> lst1 = new ArrayList<>(0);
+//        while (heap.last != null) {
+//            BinomialHeap.HeapItem item = getRandItem(heap.last, 0, heap);
+//            lst1.add(item.key);
+//            heap.delete(item);
+//        }
+//        System.out.println(lst1);
     }
     public static int createRandInt(int m, int k, int seed) {
         RandomGenerator generator = new Random(seed);
         int num = generator.nextInt(LOW_RANGE, UPPER_RANGE);
+        return num;
+    }
+
+    public static int createRandInt(int m, int k) {
+        long rndInt = m + Math.round(Math.random()*k);
+        int num = (int) rndInt;
         return num;
     }
 
@@ -92,6 +113,47 @@ public class Tester {
 //        }
     }
 
+    public static void testDecreaseKey(int t) {
+        BinomialHeap heap = new BinomialHeap();
+        ArrayList <Integer> lst = createRandArr(t, LOW_RANGE, UPPER_RANGE);
+        for(int i = 0; i < lst.size(); i++) {
+            heap.insert(lst.get(i), "hi");
+        }
+        BinomialHeap.HeapItem item = getRandItem(heap.last, 0, heap);
+        heap.delete(item);
+
+    }
+
+    public static BinomialHeap.HeapItem getRandItem(BinomialHeap.HeapNode node, int n, BinomialHeap heap) {
+        if (n == heap.size){
+            return node.item;
+        }
+        double rand = Math.random();
+        if (node.parent != null && node.child != null) {
+            if (rand < 0.3333) {
+                return getRandItem(node.next, n + 1, heap);
+            } else if (rand > 0.333333 && rand < 0.6666666) {
+                return getRandItem(node.child, n + 1, heap);
+            }else {
+                return getRandItem(node.parent, n + 1, heap);
+            }
+        } else if (node.child != null) {
+            if (rand < 0.5) {
+                return getRandItem(node.next, n + 1, heap);
+            }else {
+                return getRandItem(node.child, n + 1, heap);
+            }
+        } else if (node.parent != null) {
+            if (rand < 0.5) {
+                return getRandItem(node.next, n + 1, heap);
+            }else {
+                return getRandItem(node.parent, n + 1, heap);
+            }
+        }else {
+            return getRandItem(node.next, n + 1, heap);
+        }
+    }
+
     public static boolean testInsert(int t) {
         ArrayList<Integer> lst1 = createRandArr(t, LOW_RANGE, UPPER_RANGE);
         BinomialHeap heap = new BinomialHeap();
@@ -109,12 +171,16 @@ public class Tester {
         }
         Collections.sort(lst3);
         Collections.sort(lst1);
-//        System.out.println(lst3);
-//        System.out.println(lst1);
-//        System.out.println(lst1.equals(lst3));
+
+        Comparator<BinomialHeap.HeapNode> c = new Comparator<BinomialHeap.HeapNode>() {
+            @Override
+            public int compare(BinomialHeap.HeapNode o1, BinomialHeap.HeapNode o2) {
+                return Integer.compare(o1.item.key, o2.item.key);
+            }
+        };
+        Collections.sort(lst2, c);
         return lst1.equals(lst3);
     }
-
 
     public static boolean testDeleteMin(int t) {
         BinomialHeap heap = new BinomialHeap();
@@ -173,4 +239,5 @@ public class Tester {
         }
         return true;
     }
+
 }
