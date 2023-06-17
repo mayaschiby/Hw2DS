@@ -4,30 +4,66 @@ import java.util.stream.Stream;
 
 public class Tester {
 
-    public static final int TreeSize = 2000;
+    public static final int TreeSize = 170;
 
-    public static final int LOW_RANGE = 0;
+    public static final int LOW_RANGE = 10000;
 
     public static final int UPPER_RANGE = 100000;
 
     public static void main(String[] args) {
 
+//        for (int i = 1; i < 6; i++) {
+//            int n = (int) Math.pow(3, 5 + i) - 1;
+//            BinomialHeap heap = new BinomialHeap();
+//            ArrayList<Integer> lst = new ArrayList<>(0);
+//            for (int p = 1; p < n + 1; p++) {
+//                lst.add(p);
+//            }
+//            Collections.shuffle(lst);
+//            double t1 = System.currentTimeMillis();
+//            int numLinks = 0;
+//            for (int j = 0; j < n; j++) {
+//                heap.insert(lst.get(j), "hoi");
+//                numLinks += heap.numOfLinks;
+//            }
+//            int rankCnt = 0;
+//            for (int k = 0; k < n/2; k++) {
+//                rankCnt += heap.deleteMin();
+//                numLinks += heap.numOfLinks;
+//            }
+//            while (heap.size != ((int) Math.pow(2, 5)) - 1) {
+//                rankCnt += heap.deleteMin();
+//                numLinks += heap.numOfLinks;
+//            }
+//            double t2 = System.currentTimeMillis();
+//            System.out.println("i = " + i);
+//            System.out.println("Running time: " + (t2-t1));
+//            System.out.println("Number of trees: " + heap.numTrees());
+//            System.out.println("Number of links: " + numLinks);
+//            System.out.println("Sum of ranks that we deleted: " + rankCnt);
+////            System.out.println("Sum of ranks - Num of links: " + (numLinks - rankCnt));
+//            System.out.println(" ");
+//        }
+
+
         // ###TEST MELD### //
 
-//        for(int i = 0; i < NUM_OF_IT; i++) {
-//            int t = createRandInt(LOW_RANGE, UPPER_RANGE, i);
-//            int l = createRandInt(LOW_RANGE, UPPER_RANGE, i);
-//            System.out.println("t: " + t + " l: " + l);
-//            test(t, l,i);
-//        }
-//        System.out.println("Done!");
+        for(int i = 0; i < 100; i++) {
+            int t = createRandInt(LOW_RANGE, UPPER_RANGE, i);
+            int l = createRandInt(LOW_RANGE, UPPER_RANGE, i);
+            System.out.println("t: " + t + " l: " + l);
+            test(t, l,i);
+        }
+        System.out.println("Done!");
 
         // ### TEST INSERT ### //
 
 //        for (int i = 0; i < 100; i++) {
 //            int k = createRandInt(LOW_RANGE, UPPER_RANGE, i);
-//            System.out.println(k);
+//            double t1 = System.currentTimeMillis();
 //            boolean test = testInsert(k);
+//            double t2 = System.currentTimeMillis();
+//            System.out.println("the time it took to insert " + k + " nodes is: " + (t2-t1) + " millisecond");
 //            if (!test) {
 //                System.out.println(k);
 //            }
@@ -60,6 +96,21 @@ public class Tester {
 //        }
 //        System.out.println(lst1);
     }
+
+    public static int calc(int n) {
+        double log = Math.log(n) / Math.log(2) + 2;
+        for (int i = 0; i < log; i++) {
+            if ((int) Math.pow(2, i) == n) {
+                return i;
+            }
+        }
+        for (int j = 0; j < log; j++) {
+            if ((int) Math.pow(2, j) < n && (int) Math.pow(2, j + 1) > n) {
+                return calc(n - (int) Math.pow(2, j));
+            }
+        }
+        return 0;
+    }
     public static int createRandInt(int m, int k, int seed) {
         RandomGenerator generator = new Random(seed);
         int num = generator.nextInt(LOW_RANGE, UPPER_RANGE);
@@ -74,10 +125,12 @@ public class Tester {
 
     public static ArrayList<Integer> createRandArr(int size, int lowRange, int upRange) {
         ArrayList<Integer> lst = new ArrayList<>(0);
-        int k = 0;
-        for(int i = 0; i < size; i++) {
-            k = createRandInt(lowRange, upRange, i);
+        int k;
+        int i = 0;
+        while (i < size) {
+            k = createRandInt(lowRange, upRange);
             lst.add(k);
+            i += 1;
         }
         return lst;
     }
@@ -188,7 +241,7 @@ public class Tester {
         for (int i = 0; i < t; i++) {
             heap.insert(lst.get(i), "hi");
         }
-        System.out.println(lst);
+//        System.out.println(lst);
         ArrayList<Integer> checkLst = new ArrayList<>(0);
         while (heap.size > 0) {
             checkLst.add(heap.min.item.key);

@@ -22,7 +22,7 @@ public class BinomialHeap{
         heap1.deleteMin();
     }
 
-
+    public int numOfLinks;
     public int size;
     public HeapNode last;
     public HeapNode min;
@@ -43,37 +43,77 @@ public class BinomialHeap{
      */
 
     public HeapItem insert(int key, String info) {
+        numOfTrees += 1;
+        numOfLinks = 0;
         HeapNode newNode = new HeapNode(null, null, null, null);
         HeapItem newItem = new HeapItem(key, info, newNode);
         newNode.item = newItem;
         newNode.next = newNode;
 
-        BinomialHeap heap2 = new BinomialHeap();
-        heap2.size = 1;
-        heap2.last = newNode;
-        heap2.min = newNode;
-        heap2.numOfTrees += 1;
-        meld(heap2);
+        if (size == 0) {
+            size = 1;
+            last = newNode;
+            min = newNode;
+            return newItem;
+        } else{
+            if (min.item.key > key) {
+                min = newNode;
+            }
+            if (size == 1) {
+                newNode = link(newNode, last);
+                min = newNode;
+                last = newNode;
+                size = 2;
+                newNode.next = newNode;
+                return newItem;
+            }else if (last.next.rank > 0){
+                size += 1;
+                HeapNode tmp = last.next;
+                last.next = newNode;
+                newNode.next = tmp;
+                return newItem;
+            }else {
+                size += 1;
+                HeapNode nextNode = last.next;
+                last.next = newNode;
+                newNode.next = nextNode;
+                while (newNode.rank == nextNode.rank && newNode != nextNode && nextNode != last) {
+                    HeapNode tmp = nextNode.next;
+                    newNode = link(newNode, nextNode);
+                    newNode.next = tmp;
+                    last.next = newNode;
+                    nextNode = tmp;
+                }
+                if (nextNode == last && newNode.rank == nextNode.rank) {
+                    HeapNode node = link(newNode, nextNode);
+                    min = node;
+                    last = node;
+                }
+            }
+        }
         return newItem;
     }
 
     /**
      * Delete the minimal item
      */
-    public void deleteMin() {
+    public int deleteMin() {
+        numOfLinks = 0;
+        int res = min.rank;
         numOfTrees -= 1;
         if (size == 1 || size == 0) {
             min = null;
             size = 0;
             last = null;
-            return;
+            numOfTrees = 0;
+            return res;
         }
         if (last == last.next) {
+            numOfTrees = last.rank;
             last = last.child;
             size -= 1;
-            numOfTrees = last.rank;
             updateHeap();
-            return;
+            return res;
         }
         HeapNode BeforeMin = findBeforeMin();
         HeapNode AfterMin = min.next;
@@ -89,11 +129,13 @@ public class BinomialHeap{
             size = size - (int) Math.pow(2, min.rank);
             BinomialHeap heap2 = new BinomialHeap();
             heap2.last = min.child;
+            heap2.numOfTrees = min.rank;
             heap2.size = (int) Math.pow(2, min.rank) - 1;
             heap2.updateHeap();
             this.updateHeap();
             meld(heap2);
         }
+        return res;
     }
     public boolean checkParents() {
         if (last == null) {
@@ -189,54 +231,33 @@ public class BinomialHeap{
      * @return
      */
 
-    public HeapNode linkmeld(HeapNode node1, HeapNode node2) {
+    public HeapNode link(HeapNode node1, HeapNode node2) {
+        numOfLinks += 1;
         numOfTrees -= 1;
         if (node1.item.key < node2.item.key) {
-            HeapNode node1Child = node1.child;
-            if (node1Child != null) {
-                HeapNode tmp  = node1Child.next;
-                node1Child.next = node2;
-                node2.next = tmp;
-            }else {
-                node2.next = node2;
-            }
-            node1.child = node2;
-            node2.parent = node1;
-            node1.rank += 1;
-            return node1;
+            return getHeapNode(node1, node2);
         }else {
-            HeapNode node2Child = node2.child;
-            if (node2Child != null) {
-                HeapNode tmp = node2Child.next;
-                node2Child.next = node1;
-                node1.next = tmp;
-            }else {
-                node1.next = node1;
-            }
-            node2.child = node1;
-            node1.parent = node2;
-            node2.rank += 1;
-            return node2;
+            return getHeapNode(node2, node1);
         }
     }
 
-    /**
-     *
-     * @param node
-     * @param arr
-     */
-
-    public static void insertToArr(HeapNode node, HeapNode[] arr) {
-        for (int i = 0; i < arr.length; i++) {
-            if (i == node.rank) {
-                arr[i] = node;
-                node = node.next;
-            }else {
-                arr[i] = null;
-            }
+    public HeapNode getHeapNode(HeapNode node1, HeapNode node2) {
+        HeapNode node1Child = node1.child;
+        if (node1Child != null) {
+            HeapNode tmp  = node1Child.next;
+            node1Child.next = node2;
+            node2.next = tmp;
+        }else {
+            node2.next = node2;
         }
-
+        node1.child = node2;
+        node2.parent = node1;
+        node1.rank += 1;
+        node1.next = node1;
+        return node1;
     }
+
+
     /**
      * Meld the heap with heap2
      */
@@ -251,8 +272,8 @@ public class BinomialHeap{
             numOfTrees = heap2.numOfTrees;
             return;
         }
-
         numOfTrees += heap2.numOfTrees;
+
         int sizesSum = size + heap2.size;
 
         int thisSize = last.rank + 1;
@@ -281,7 +302,7 @@ public class BinomialHeap{
                 } else if (thisArr[i] != null && otherArr[i] == null) {
                     allArr[i] = thisArr[i];
                 }else {
-                    curry = linkmeld(thisArr[i], otherArr[i]);
+                    curry = link(thisArr[i], otherArr[i]);
                     allArr[i] = null;
                 }
             }else{
@@ -290,12 +311,12 @@ public class BinomialHeap{
                     curry = null;
 
                 } else if (thisArr[i] == null && otherArr[i] != null) {
-                    curry = linkmeld(curry, otherArr[i]);
+                    curry = link(curry, otherArr[i]);
                 } else if (thisArr[i] != null && otherArr[i] == null) {
-                    curry = linkmeld(curry, thisArr[i]);
+                    curry = link(curry, thisArr[i]);
                 }else {
                     allArr[i] = curry;
-                    curry = linkmeld(thisArr[i], otherArr[i]);
+                    curry = link(thisArr[i], otherArr[i]);
                 }
             }
         }
@@ -328,6 +349,23 @@ public class BinomialHeap{
         updateHeap();
     }
 
+    /**
+     * inserts the nodes of the heap which are on the first row of the heap to an array.
+     * @param node last node
+     * @param arr the array that *it inserts to.
+     */
+    public static void insertToArr(HeapNode node, HeapNode[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            if (i == node.rank) {
+                arr[i] = node;
+                node = node.next;
+            }else {
+                arr[i] = null;
+            }
+        }
+
+    }
+
 
     /**
      * Return the number of elements in the heap
@@ -347,9 +385,7 @@ public class BinomialHeap{
     /**
      * Return the number of trees in the heap.
      */
-    public int numTrees() {
-        return numOfTrees;
-    }
+    public int numTrees() { return numOfTrees; }
 
     /**
      * Class implementing a node in a Binomial Heap.
