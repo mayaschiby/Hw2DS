@@ -6,9 +6,9 @@ public class Tester {
 
     public static final int TreeSize = 170;
 
-    public static final int LOW_RANGE = 10000;
+    public static final int LOW_RANGE = 1000;
 
-    public static final int UPPER_RANGE = 100000;
+    public static final int UPPER_RANGE = 2000;
 
     public static void main(String[] args) {
 
@@ -51,8 +51,11 @@ public class Tester {
         for(int i = 0; i < 100; i++) {
             int t = createRandInt(LOW_RANGE, UPPER_RANGE, i);
             int l = createRandInt(LOW_RANGE, UPPER_RANGE, i);
-            System.out.println("t: " + t + " l: " + l);
-            test(t, l,i);
+//            System.out.println("t: " + t + " l: " + l);
+            boolean y = test(t, l,i);
+            if (!y) {
+                System.out.println("no");
+            }
         }
         System.out.println("Done!");
 
@@ -134,7 +137,7 @@ public class Tester {
         }
         return lst;
     }
-    public static void test(int t, int l, int p) {
+    public static boolean test(int t, int l, int p) {
 //        if (p%20 == 0) {
 //            double k = (NUM_OF_IT-p)/NUM_OF_IT;
 //            System.out.println(k + "% left");
@@ -151,10 +154,19 @@ public class Tester {
             lst1.add(t + j);
         }
         heap.meld(heap2);
-//        ArrayList<Integer> lst2 = new ArrayList<>(0);
-//        scanTree(heap.last, false, lst2);
-//        Collections.sort(lst1);
-//        Collections.sort(lst2);
+        ArrayList<BinomialHeap.HeapNode> lst2 = new ArrayList<>(0);
+        scanTree(heap.last, false, lst2);
+        Collections.sort(lst1);
+        ArrayList<Integer> lst3 = new ArrayList<>(0);
+        for (int i = 0; i < lst2.size(); i++) {
+            lst3.add(lst2.get(i).item.key);
+        }
+        Collections.sort(lst3);
+        if (lst1.equals(lst3)) {
+            return true;
+        }
+        return false;
+
 //        heap.print();
 //        System.out.println(lst1);
 //        System.out.println(lst2);

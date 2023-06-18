@@ -344,7 +344,6 @@ public class BinomialHeap{
             finalArr[finalArr.length - 1].next = finalArr[0];
         }
         last = finalArr[finalArr.length - 1];
-//        min = minimum;
         size = sizesSum;
         updateHeap();
     }
