@@ -195,6 +195,9 @@ public class BinomialHeap{
     public void decreaseKey(HeapItem item, int diff) {
         HeapNode node = item.node;
         item.key -= diff;
+        if (item.key <= min.item.key) {
+            min = item.node;
+        }
         if (node.parent != null) {
             HeapNode parent = node.parent;
             while(node.parent != null && node.item.key < node.parent.item.key){
