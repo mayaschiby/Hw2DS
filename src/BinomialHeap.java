@@ -1,5 +1,10 @@
 import java.util.HashSet;
 import java.util.Set;
+/**
+ * maya schiby - 213104177
+ * aviv schiby - 206655540
+ * user - @avivschiby
+ */
 
 /**
  * BinomialHeap
@@ -10,19 +15,7 @@ import java.util.Set;
 
 
 public class BinomialHeap{
-    public static void main(String[] args) {
-        BinomialHeap heap1 = new BinomialHeap();
-        for (int i = 0; i < 17; i++) {
-            heap1.insert(i, "hi");
-        }
-        heap1.deleteMin();
-        heap1.deleteMin();
-        heap1.deleteMin();
-        heap1.deleteMin();
-        heap1.deleteMin();
-    }
 
-    public int numOfLinks;
     public int size;
     public HeapNode last;
     public HeapNode min;
@@ -44,7 +37,6 @@ public class BinomialHeap{
 
     public HeapItem insert(int key, String info) {
         numOfTrees += 1;
-        numOfLinks = 0;
         HeapNode newNode = new HeapNode(null, null, null, null);
         HeapItem newItem = new HeapItem(key, info, newNode);
         newNode.item = newItem;
@@ -98,7 +90,6 @@ public class BinomialHeap{
      * Delete the minimal item
      */
     public int deleteMin() {
-        numOfLinks = 0;
         int res = min.rank;
         numOfTrees -= 1;
         if (size == 1 || size == 0) {
@@ -137,20 +128,7 @@ public class BinomialHeap{
         }
         return res;
     }
-    public boolean checkParents() {
-        if (last == null) {
-            return true;
-        }
-        int cnt = 0;
-        HeapNode node = last.next;
-        while (node != last) {
-            if (node.parent != null) {
-                return false;
-            }
-            node = node.next;
-        }
-        return last.parent == null;
-    }
+    
     public void updateHeap() {  // removes all parents and apply min
         HeapNode node = last;
         min = last;
@@ -235,7 +213,6 @@ public class BinomialHeap{
      */
 
     public HeapNode link(HeapNode node1, HeapNode node2) {
-        numOfLinks += 1;
         numOfTrees -= 1;
         if (node1.item.key < node2.item.key) {
             return getHeapNode(node1, node2);
@@ -423,48 +400,6 @@ public class BinomialHeap{
             this.key = key;
             this.node = node;
         }
-    }
-
-    public void print() {
-        System.out.println("Binomial Heap:");
-        System.out.println("Size: " + size);
-
-        if (min != null) {
-            System.out.println("Minimum Node: " + min.item.key);
-        } else {
-            System.out.println("No minimum node.");
-        }
-
-        System.out.println("Heap Nodes:");
-        if (last != null) {
-            Set<HeapNode> visited = new HashSet<>();
-            printHeapNode(last, 0, visited);
-        } else {
-            System.out.println("No heap nodes.");
-        }
-    }
-
-    private void printHeapNode(HeapNode node, int indentLevel, Set<HeapNode> visited) {
-        StringBuilder indent = new StringBuilder();
-        for (int i = 0; i < indentLevel; i++) {
-            indent.append("    ");
-        }
-
-        System.out.println(indent + "Key: " + node.item.key);
-//        System.out.println(indent + "Info: " + node.item.info);
-        System.out.println(indent + "Rank: " + node.rank);
-
-        visited.add(node);
-
-        if (node.child != null && !visited.contains(node.child)) {
-            System.out.println(indent + "Child:");
-            printHeapNode(node.child, indentLevel + 1, visited);
-        }
-
-        if (node.next != null && !visited.contains(node.next)) {
-            System.out.println(indent + "Sibling:");
-            printHeapNode(node.next, indentLevel, visited);
-        }
-    }
+    }    
 
 }
